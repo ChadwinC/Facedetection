@@ -1,0 +1,14 @@
+.bounding-box{
+    position: absolute;
+    color: rgb(218, 0, 0);
+    box-shadow:  0 0 0 3px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    cursor: pointer;
+
+}
+
+img[alt=""] {
+    display: none;
+  }
