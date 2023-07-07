@@ -54,15 +54,36 @@ return requestOptions
 
 class App extends Component{ 
   constructor(props){
-    super()
+    super(props)
     this.state = {
       input:"",
       imageUrl:"",//image url
       box:{},//object of data from API
       route:"Signin",//initial sign in page.
-      isSignedIn:"" //bool("") gives true in JS.
+      isSignedIn:"" ,//bool("") gives true in JS.
+      user:{
+        id: "",
+				name: "",
+				surname: "",
+				email: "",
+				password: "",
+				entries: 0,
+				joined: ""
+      }
     }
  } 
+
+ //loaduser 
+ loadUser = (data) => {
+  this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      entries: data.entries,
+      joined: data.joined
+    }})
+ }
 
  //below function will calcuate where the faceBox should be
  faceBoxCalculation = (resp) =>{//gets data from api call
@@ -108,8 +129,24 @@ onChangeRoute = (route) =>{
   this.setState({imageUrl:this.state.input})
   //when I press the detect button this should take place.
   fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", apiClarifaiHttpRequest(this.state.input))
-  .then(response => response.json())//json response
-  .then(result => this.faceBox(this.faceBoxCalculation(result)))//nested function API data
+    .then(response => {
+        if(response){
+          fetch("http://localhost:3001/image",{
+                method: "put",
+                headers: {'Content-Type':"application/json"},
+                body: JSON.stringify({
+                  id: this.state.user.id
+                }) 
+          })
+          .then(resp => resp.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user,{entries:count}))
+          })
+          
+        }
+      return response.json(); 
+    })//json response
+  .then(data => this.faceBox(this.faceBoxCalculation(data)))
   .catch(error => console.log('error', error));
  }
  
@@ -126,14 +163,14 @@ onChangeRoute = (route) =>{
           { route == "home"?
               <div>
                 <Logo/>
-                <Rank/>
+                <Rank name={this.state.user.name} entries={this.state.user.entries}/>
                 <ImageLinkForm inputBoxOnChange={this.inputBoxOnChange}  buttonClick={this.buttonClick}/>
                 <FaceRecognition imageUrl={imageUrl} box={box}/>
               </div>
             :(
               route==="Signin"?
-              <SignIn onChangeRoute={this.onChangeRoute}/>
-              :<Register onChangeRoute={this.onChangeRoute}/>
+              <SignIn loadUser={this.loadUser} onChangeRoute={this.onChangeRoute}/>
+              :<Register loadUser={this.loadUser} onChangeRoute={this.onChangeRoute}/>
           
 
               
