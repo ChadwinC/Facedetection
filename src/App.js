@@ -10,57 +10,13 @@ import SignIn from './Components/SignIn/SignIn';
 import Register from './Components/Register/Register';
 
 //below is HTTPRequest facedetection API call
-const apiClarifaiHttpRequest = (imageurl) =>{
-    // Your PAT (Personal Access Token) can be found in the portal under Authentification
-    const PAT = 'f1155c26b9a34f6f80ada248fd783dd3';
-    // Specify the correct user_id/app_id pairings
-    // Since you're making inferences outside your app's scope
-    const USER_ID = 'chadwin';       
-    const APP_ID = 'SmartBrain';
-    // Change these to whatever model and image URL you want to use
-    // const MODEL_ID = 'general-image-recognition';    
-    const IMAGE_URL = imageurl;
-     ///////////////////////////////////////////////////////////////////////////////////
-    // YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE TO RUN THIS EXAMPLE
-    ///////////////////////////////////////////////////////////////////////////////////
-    const raw = JSON.stringify({
-      "user_app_id": {
-          "user_id": USER_ID,
-          "app_id": APP_ID
-      },
-      "inputs": [
-          {
-              "data": {
-                  "image": {
-                      "url": IMAGE_URL
-                  }
-              }
-          }
-      ]
-  });
 
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-};
-//looking at the fetch method requestOptions has been called hence me returning it
-return requestOptions
-
-};
-
-class App extends Component{ 
-  constructor(props){
-    super(props)
-    this.state = {
-      input:"",
+const initialstate ={
+  input:"",
       imageUrl:"",//image url
       box:{},//object of data from API
       route:"Signin",//initial sign in page.
-      isSignedIn:"" ,//bool("") gives true in JS.
+      isSignedIn:false,
       user:{
         id: "",
 				name: "",
@@ -70,7 +26,15 @@ class App extends Component{
 				entries: 0,
 				joined: ""
       }
-    }
+}
+
+
+
+class App extends Component{ 
+  constructor(props){
+    super(props)
+    this.state =initialstate;
+
  } 
 
  //loaduser 
@@ -114,21 +78,33 @@ class App extends Component{
 }
 
 onChangeRoute = (route) =>{
-  if(route==="home"){//conditional
-    this.setState({isSignedIn:"false"})//sets isSignIN to true which will display sign out nav only
+  if(route==="Signin"){//conditional
+    this.setState({isSignedIn:false})
+   
+    //sets isSignIN to true which will display sign out nav only
     this.setState({route:route})//also go to home page
 
-  }else{//otherwise if route is not "home"
-    this.setState({isSignedIn:""})//set isSignIn to false and display sign in and register nav.
-    this.setState({route:route})//also go to whichever route is applied.
+  }else if (route === 'home'){//otherwise if route is not "home"
+    this.setState({isSignedIn: true})
+    
+    //also go to whichever route is applied.
+  }else if(route==="signOut"){
+    window.location.reload();
+    this.setState({isSignedIn:false})
   }
-  
+  this.setState({route:route})
 }
 
  buttonClick = () =>{
   this.setState({imageUrl:this.state.input})
   //when I press the detect button this should take place.
-  fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", apiClarifaiHttpRequest(this.state.input))
+  fetch("http://localhost:3001/imageURL",{
+                method: "post",
+                headers: {'Content-Type':"application/json"},
+                body: JSON.stringify({
+                  input: this.state.input
+                }) 
+    })
     .then(response => {
         if(response){
           fetch("http://localhost:3001/image",{
