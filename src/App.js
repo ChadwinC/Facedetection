@@ -3,7 +3,7 @@ import Navigation from './Components/Navigation/Navigation';
 import Logo from './Components/Logo/Logo';
 import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import Rank from './Components/Rank/Rank';
-import Particle from './Components/Particles/Particle';
+// import Particle from './Components/Particles/Particle';
 import { Component } from 'react';
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 import SignIn from './Components/SignIn/SignIn';
@@ -133,10 +133,10 @@ onChangeRoute = (route) =>{
 
     return (
       <div className="App" >
-       <Particle/>
+       {/* <Particle/> */}
         <Navigation onChangeRoute={this.onChangeRoute} isSignedIn={isSignedIn}/>
 
-          { route == "home"?
+          { route === "home"?
               <div>
                 <Logo/>
                 <Rank name={this.state.user.name} entries={this.state.user.entries}/>

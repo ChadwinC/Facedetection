@@ -51,7 +51,7 @@ RegisterSubmitForm = (event) => {
 
 
     render(){
-        const {onChangeRoute} = this.props;
+        
         return(
 
             <div className="center flex justify-center">
